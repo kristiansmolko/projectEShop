@@ -23,7 +23,7 @@ public class Cart {
     public double getTotalPrice(){
         double total = 0;
         for (Item temp : list){
-            total -= -(temp.getItemPrice());
+            total -= -(Util.formatPrice(temp.getItemPrice()));
         }
         return Util.formatPrice(total);
     }
