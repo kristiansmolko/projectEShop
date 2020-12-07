@@ -6,8 +6,6 @@ public class Util {
     }
 
     public static Double formatPrice(double price){
-        double result =  (Math.round(price*100))/100.0;
-        //String ret = String.valueOf(result);
-        return result;
+        return (Math.round(price*100))/100.0;
     }
 }
