@@ -1,5 +1,8 @@
 package eshop;
 
+import eshop.countable.CountITem;
+import eshop.service.Service;
+import eshop.uncountable.WeightItem;
 import eshop.util.Util;
 
 import java.util.ArrayList;
@@ -13,7 +16,14 @@ public class Cart {
     }
 
     public void addItem(Item newItem){
-        list.add(newItem);
+        if (newItem.getPrice() >= 0){
+            if (newItem instanceof WeightItem && ((WeightItem) newItem).getWeight() > 0)
+                list.add(newItem);
+            if (newItem instanceof CountITem && ((CountITem) newItem).getCount() > 0)
+                list.add(newItem);
+            if (newItem instanceof Service)
+                list.add(newItem);
+        }
     }
 
     public int getCountOfItems(){
