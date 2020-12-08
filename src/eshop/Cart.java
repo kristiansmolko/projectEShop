@@ -17,10 +17,30 @@ public class Cart {
 
     public void addItem(Item newItem){
         if (newItem.getPrice() >= 0){
-            if (newItem instanceof WeightItem && ((WeightItem) newItem).getWeight() > 0)
-                list.add(newItem);
-            if (newItem instanceof CountITem && ((CountITem) newItem).getCount() > 0)
-                list.add(newItem);
+            if (newItem instanceof WeightItem && ((WeightItem) newItem).getWeight() > 0) {
+                boolean isAlreadyIn = false;
+                for (Item temp : list){
+                    if (temp.getName().equalsIgnoreCase(newItem.getName()) && temp.getPrice() == newItem.getPrice()){
+                        ((WeightItem) temp).setWeight(((WeightItem) temp).getWeight() + ((WeightItem) newItem).getWeight());
+                        isAlreadyIn = true;
+                        break;
+                    }
+                }
+                if (!isAlreadyIn)
+                    list.add(newItem);
+            }
+            if (newItem instanceof CountITem && ((CountITem) newItem).getCount() > 0) {
+                boolean isAlreadyIn = false;
+                for (Item temp : list){
+                    if (temp.getName().equalsIgnoreCase(newItem.getName()) && temp.getPrice() == newItem.getPrice()){
+                        ((CountITem) temp).setCount(((CountITem) temp).getCount() + ((CountITem) newItem).getCount());
+                        isAlreadyIn = true;
+                        break;
+                    }
+                }
+                if (!isAlreadyIn)
+                    list.add(newItem);
+            }
             if (newItem instanceof Service)
                 list.add(newItem);
         }

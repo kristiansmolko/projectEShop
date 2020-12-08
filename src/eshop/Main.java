@@ -15,9 +15,12 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         Cart cart = new Cart();
         cart.addItem(new Apple("Goldenky", 1.09, 1.5));
-        cart.addItem(new Water("Baldovska", 0.89, -10));
+        cart.addItem(new Apple("Goldenky", 1.09, 1.5));
+        cart.addItem(new Apple("Goldenky", 1.09, 1.5));
+        cart.addItem(new Apple("Idared", 1.69, 2.2));
+        cart.addItem(new Water("Baldovska", 0.89, 10));
+        cart.addItem(new Water("Baldovska", 0.89, 10));
         cart.addItem(new Peanuts("Peanuts", 0.62, 4));
-        cart.addItem(new Peanuts("Peanuts", -0.62, 4));
         cart.addItem(new Delivery(2.99));
         cart.printCart();
         System.out.println("Do you have coupon? y/n");
