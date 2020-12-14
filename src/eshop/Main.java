@@ -3,10 +3,26 @@ package eshop;
 import eshop.coupon.Coupon;
 import eshop.coupon.Reader;
 import eshop.service.Delivery;
+import eshop.service.Service;
 import eshop.uncountable.*;
 import eshop.countable.*;
 import eshop.util.Util;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,6 +37,8 @@ public class Main {
         cart.addItem(new Water("Baldovska", 0.89, 10));
         cart.addItem(new Water("Baldovska", 0.89, 10));
         cart.addItem(new Peanuts("Peanuts", 0.62, 4));
+        cart.addItem(new Choco("Milka", 0.80, 4));
+        cart.addItem(new Choco("Milka", 0.82, 2));
         cart.addItem(new Delivery(2.99));
         cart.printCart();
         System.out.println("Do you have coupon? y/n");
@@ -44,6 +62,84 @@ public class Main {
         }
         System.out.println("Total price: " + Util.formatPrice(totalPrice));
         System.out.println("(Information price in SKK: " + Util.convertToSK(totalPrice) + ")");
+        makeBill(cart);
+    }
+
+    public static void makeBill(Cart cart){
+        String xmlFilePath = "D:\\projectCart\\resources\\xmlfile.xml";
+        Date today = new Date();
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        try {
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.newDocument();
+            Element root = document.createElement("bill");
+            document.appendChild(root);
+            Element date = document.createElement("date");
+            date.appendChild(document.createTextNode(sdf.format(today)));
+            root.appendChild(date);
+            Element time = document.createElement("time");
+            time.appendChild(document.createTextNode(timeFormat.format(today)));
+            root.appendChild(time);
+            Element items = document.createElement("items");
+            Attr count = document.createAttribute("count");
+            count.setValue(String.valueOf(cart.getCountOfItems()));
+            items.setAttributeNode(count);
+            root.appendChild(items);
+            for (Item itemCart : cart.getList()){
+                Element item = document.createElement("item");
+                Attr type = document.createAttribute("type");
+                if (itemCart instanceof WeightItem)
+                    type.setValue("weight");
+                else if (itemCart instanceof CountITem)
+                    type.setValue("count");
+                else if (itemCart instanceof Service)
+                    type.setValue("service");
+                item.setAttributeNode(type);
+                items.appendChild(item);
+                Element name = document.createElement("name");
+                name.appendChild(document.createTextNode(itemCart.getName()));
+                item.appendChild(name);
+                if (itemCart instanceof WeightItem){
+                    Element weight = document.createElement("weight");
+                    weight.appendChild(document.createTextNode(String.valueOf(((WeightItem) itemCart).getWeight())));
+                    item.appendChild(weight);
+                    Element pricePerKg = document.createElement("pricePerKg");
+                    pricePerKg.appendChild(document.createTextNode(String.valueOf(itemCart.getPrice())));
+                    item.appendChild(pricePerKg);
+                }
+                else if (itemCart instanceof CountITem){
+                    Element countItem = document.createElement("count");
+                    countItem.appendChild(document.createTextNode(String.valueOf(((CountITem) itemCart).getCount())));
+                    item.appendChild(countItem);
+                    Element pricePerUnit = document.createElement("pricePerUnit");
+                    pricePerUnit.appendChild(document.createTextNode(String.valueOf(itemCart.getPrice())));
+                    item.appendChild(pricePerUnit);
+                }
+                Element price = document.createElement("price");
+                Attr financial = document.createAttribute("unit");
+                financial.setValue("eur");
+                price.setAttributeNode(financial);
+                price.appendChild(document.createTextNode(String.valueOf(itemCart.getItemPrice())));
+                item.appendChild(price);
+            }
+            Element totalPrice = document.createElement("totalPrice");
+            Attr financial = document.createAttribute("unit");
+            financial.setValue("eur");
+            totalPrice.setAttributeNode(financial);
+            totalPrice.appendChild(document.createTextNode(String.valueOf(Util.formatPrice(cart.getTotalPrice()))));
+            root.appendChild(totalPrice);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource domSource = new DOMSource(document);
+            StreamResult streamResult = new StreamResult(new File(xmlFilePath));
+            transformer.transform(domSource, streamResult);
+        }catch(ParserConfigurationException pce) {
+            pce.printStackTrace();
+        }catch (TransformerException tfe){
+            tfe.printStackTrace();
+        }
 
     }
 }
