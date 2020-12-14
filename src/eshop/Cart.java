@@ -15,6 +15,10 @@ public class Cart {
         list = new ArrayList<>();
     }
 
+    public List<Item> getList() {
+        return list;
+    }
+
     public void addItem(Item newItem){
         if (newItem.getPrice() >= 0){
             if (newItem instanceof WeightItem && ((WeightItem) newItem).getWeight() > 0) {
