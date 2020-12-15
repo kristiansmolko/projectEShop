@@ -7,9 +7,7 @@ import eshop.service.Service;
 import eshop.uncountable.*;
 import eshop.countable.*;
 import eshop.util.Util;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,6 +38,7 @@ public class Main {
         cart.addItem(new Choco("Milka", 0.80, 4));
         cart.addItem(new Choco("Milka", 0.82, 2));
         cart.addItem(new Delivery(2.99));
+        /*
         cart.printCart();
         System.out.println("Do you have coupon? y/n");
         String coupon;
@@ -62,7 +61,10 @@ public class Main {
         }
         System.out.println("Total price: " + Util.formatPrice(totalPrice));
         System.out.println("(Information price in SKK: " + Util.convertToSK(totalPrice) + ")");
-        makeBill(cart);
+         */
+
+        //makeBill(cart);
+        readBill();
     }
 
     public static void makeBill(Cart cart){
@@ -141,5 +143,52 @@ public class Main {
             tfe.printStackTrace();
         }
 
+    }
+
+    public static void readBill(){
+        try {
+            File file = new File("resources\\xmlfile.xml");
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            Document doc = builder.parse(file);
+            doc.getDocumentElement().normalize();
+            NodeList dateL = doc.getElementsByTagName("date");
+            Element date = (Element) dateL.item(0);
+            System.out.println("Date: " + date.getTextContent());
+            NodeList timeL = doc.getElementsByTagName("time");
+            Element time = (Element) timeL.item(0);
+            System.out.println("Time: " + time.getTextContent());
+            NodeList items = doc.getElementsByTagName("item");
+            for (int i = 0; i < items.getLength(); i++){
+                Node itemN = items.item(i);
+                if (itemN.getNodeType() == Node.ELEMENT_NODE) {
+                    Element item = (Element) itemN;
+
+                    System.out.print("Item: " + item.getElementsByTagName("name").item(0).getTextContent());
+                    if (item.getAttribute("type").equalsIgnoreCase("weight")){
+                        System.out.print(", Weight: " + item.getElementsByTagName("weight").item(0).getTextContent());
+                        System.out.print(", Price per kg: " + item.getElementsByTagName("pricePerKg").item(0).getTextContent());
+                    }
+                    else if (item.getAttribute("type").equalsIgnoreCase("count")){
+                        System.out.print(", Count: " + item.getElementsByTagName("count").item(0).getTextContent());
+                        System.out.print(", Price per unit: " + item.getElementsByTagName("pricePerUnit").item(0).getTextContent());
+                    }
+                    System.out.print(", Price: " + item.getElementsByTagName("price").item(0).getTextContent());
+                    System.out.println();
+                    /*
+                    NodeList itemChild = item.getChildNodes();
+                    for (int j = 0; j < itemChild.getLength(); j++) {
+                        Element itemInCart = (Element) itemChild.item(j);
+                        if (itemInCart.getNodeType() == Node.ELEMENT_NODE) {
+                            System.out.print(itemInCart.getTagName() + ": " + itemInCart.getTextContent() + " ");
+                        }
+                    }
+                    System.out.println();*/
+                }
+            }
+            System.out.println("------------------------------------------------------");
+            Element totalPrice = (Element) doc.getElementsByTagName("totalPrice").item(0);
+            System.out.println("Total price: " + totalPrice.getTextContent());
+        }catch(Exception e){ e.printStackTrace();}
     }
 }
